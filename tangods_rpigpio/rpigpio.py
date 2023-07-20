@@ -56,4 +56,5 @@ class RPiGPIO(Device):
 
     def delete_device(self):
         Device.delete_device(self)
+        self.turn_off_all()
         GPIO.cleanup()
