@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="rpigpio",
+    name="tangods_rpigpio",
     version="0.0.2",
     description="tango device to control raspberry GPIO",
     author="Leonid Lunin",
