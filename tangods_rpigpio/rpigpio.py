@@ -41,4 +41,19 @@ class RPiGPIO(Device):
         self.gpio_dict = dict(zip(self.GPIO_LABELS, self.GPIO_PINS))
         for gpio_pin in self.GPIO_PINS:
             GPIO.setup(gpio_pin, GPIO.OUT)
+        self.initialize_dynamic_attributes()
         self.set_state(DevState.ON)
+
+    @command
+    def turn_off_all(self):
+        for gpio_pin in self.GPIO_PINS:
+            GPIO.output(gpio_pin, 0)
+
+    @command
+    def turn_on_all(self):
+        for gpio_pin in self.GPIO_PINS:
+            GPIO.output(gpio_pin, 1)
+
+    def delete_device(self):
+        Device.delete_device(self)
+        GPIO.cleanup()
