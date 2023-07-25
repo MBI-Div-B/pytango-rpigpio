@@ -1,6 +1,5 @@
 from tango import AttrWriteType, DispLevel, DevState
 from tango.server import Device, attribute, command, device_property
-from enum import IntEnum
 import RPi.GPIO as GPIO
 
 
@@ -37,12 +36,16 @@ class RPiGPIO(Device):
 
     def init_device(self):
         Device.init_device(self)
-        GPIO.setmode(GPIO.BOARD)
-        self.gpio_dict = dict(zip(self.GPIO_LABELS, self.GPIO_PINS))
-        for gpio_pin in self.GPIO_PINS:
-            GPIO.setup(gpio_pin, GPIO.OUT)
-        self.initialize_dynamic_attributes()
-        self.set_state(DevState.ON)
+        if self.validate_properties():
+            GPIO.setmode(GPIO.BOARD)
+            self.gpio_dict = dict(zip(self.GPIO_LABELS, self.GPIO_PINS))
+            for gpio_pin in self.GPIO_PINS:
+                GPIO.setup(gpio_pin, GPIO.OUT)
+            self.initialize_dynamic_attributes()
+            self.set_state(DevState.ON)
+        else:
+            self.error_stream("Non unique GPIO labels or/and GPIO pins")
+            self.set_state(DevState.FAULT)
 
     @command
     def turn_off_all(self):
@@ -53,6 +56,17 @@ class RPiGPIO(Device):
     def turn_on_all(self):
         for gpio_pin in self.GPIO_PINS:
             GPIO.output(gpio_pin, 1)
+
+    def validate_properties(self):
+        GPIO_LABELS = self.GPIO_LABELS
+        GPIO_PINS = self.GPIO_PINS
+        if self.is_array_unique(GPIO_LABELS) and self.is_array_unique(GPIO_PINS):
+            return len(GPIO_LABELS) == len(GPIO_PINS)
+        else:
+            return False
+
+    def is_array_unique(self, array):
+        return len(array) == len(set(array))
 
     def delete_device(self):
         Device.delete_device(self)
