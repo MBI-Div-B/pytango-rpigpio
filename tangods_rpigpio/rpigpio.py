@@ -4,18 +4,19 @@ import RPi.GPIO as GPIO
 
 
 class RPiGPIO(Device):
-    GPIO_PINS = device_property(dtype=(int,), mandatory=True)
-    GPIO_LABELS = device_property(dtype=(str,), mandatory=True)
+    GPIO_PINS = device_property(dtype=(int,), mandatory=True, doc="GPIO pin number list")
+    GPIO_LABELS = device_property(dtype=(str,), mandatory=True, doc="GPIO any desired label list")
+    GPIO_MODES = device_property(dtype=(str,), mandatory=True, doc="GPIO modes list: IN or OUT")
 
     def initialize_dynamic_attributes(self):
-        for gpio_label in self.GPIO_LABELS:
+        for gpio_label, gpio_mode in zip(self.GPIO_LABELS, self.GPIO_MODES):
             attr = attribute(
                 name=gpio_label,
                 label=gpio_label,
                 dtype=bool,
-                access=AttrWriteType.READ_WRITE,
+                access=AttrWriteType.READ_WRITE if gpio_mode == "OUT" else AttrWriteType.READ,
                 fget=self.gpio_read,
-                fset=self.gpio_write,
+                fset=self.gpio_write if gpio_mode == "OUT" else None,
                 memorized=True,
             )
             self.add_attribute(attr)
@@ -39,8 +40,15 @@ class RPiGPIO(Device):
         if self.validate_properties():
             GPIO.setmode(GPIO.BOARD)
             self.gpio_dict = dict(zip(self.GPIO_LABELS, self.GPIO_PINS))
-            for gpio_pin in self.GPIO_PINS:
-                GPIO.setup(gpio_pin, GPIO.OUT)
+            for gpio_pin, gpio_mode in zip(self.GPIO_PINS, self.GPIO_MODES):
+                try:
+                    GPIO.setup(gpio_pin, getattr(GPIO, gpio_mode))
+                except Exception as e:
+                    if isinstance(e, AttributeError):
+                            self.error_stream(f"Invalid GPIO mode {gpio_mode}")
+                    elif isinstance(e, ValueError):
+                            self.error_stream(f"Invalid GPIO pin {gpio_pin}")
+                    self.set_state(DevState.FAULT)
             self.initialize_dynamic_attributes()
             self.set_state(DevState.ON)
         else:
@@ -60,8 +68,9 @@ class RPiGPIO(Device):
     def validate_properties(self):
         GPIO_LABELS = self.GPIO_LABELS
         GPIO_PINS = self.GPIO_PINS
+        GPIO_MODES = self.GPIO_MODES
         if self.is_array_unique(GPIO_LABELS) and self.is_array_unique(GPIO_PINS):
-            return len(GPIO_LABELS) == len(GPIO_PINS)
+            return len(GPIO_LABELS) == len(GPIO_PINS) == len(GPIO_MODES)
         else:
             return False
 
