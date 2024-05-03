@@ -17,7 +17,7 @@ class RPiGPIO(Device):
                 access=AttrWriteType.READ_WRITE if gpio_mode == "OUT" else AttrWriteType.READ,
                 fget=self.gpio_read,
                 fset=self.gpio_write if gpio_mode == "OUT" else None,
-                memorized=True,
+                memorized=True if gpio_mode == "OUT" else False,
             )
             self.add_attribute(attr)
 
