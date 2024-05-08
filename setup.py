@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="tangods_rpigpio",
-    version="0.0.2",
+    version="0.0.3",
     description="tango device to control raspberry GPIO",
     author="Leonid Lunin",
     author_email="lunin.leonid@gmail.com",
@@ -14,7 +14,7 @@ setup(
         "pytango",
         "RPi.GPIO>=0.7.0",
     ],
-    url="https://github.com/lrlunin/pytango-moenchZmqServer",
+    url="https://github.com/MBI-Div-B/pytango-raspigpio",
     keywords=[
         "tango device",
         "tango",
