@@ -14,7 +14,7 @@ setup(
         "pytango",
         "RPi.GPIO>=0.7.0",
     ],
-    url="https://github.com/lrlunin/pytango-moenchZmqServer",
+    url="https://github.com/MBI-Div-B/pytango-raspigpio",
     keywords=[
         "tango device",
         "tango",

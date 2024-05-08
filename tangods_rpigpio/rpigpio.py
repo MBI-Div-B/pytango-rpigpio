@@ -38,7 +38,8 @@ class RPiGPIO(Device):
     def init_device(self):
         Device.init_device(self)
         if self.validate_properties():
-            GPIO.setmode(GPIO.BOARD)
+            # use internal chip numbering of GPIOs
+            GPIO.setmode(GPIO.BCM)
             self.gpio_dict = dict(zip(self.GPIO_LABELS, self.GPIO_PINS))
             for gpio_pin, gpio_mode in zip(self.GPIO_PINS, self.GPIO_MODES):
                 try:
