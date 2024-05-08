@@ -14,7 +14,9 @@ In order to use this tangoDS you need to specify the occupied GPIO of Raspbrerry
 
 You can see the pinout of RaspberryPI GPIO in the picture below:
 ![](doc/gpio-pinout.png)
+The TangoDS uses the internal GPIO numbering of the Broadcom chip as set by the command
 
+`GPIO.setmode(GPIO.BCM) . `
 
 ## Authors
 Leonid Lunin
